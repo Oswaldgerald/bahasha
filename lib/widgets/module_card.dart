@@ -1,0 +1,1 @@
+// Reusable module card widget

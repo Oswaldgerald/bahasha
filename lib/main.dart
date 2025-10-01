@@ -6,7 +6,7 @@ void main() {
 }
 
 class BahashaApp extends StatelessWidget {
-  const BahashaApp({Key? key}) : super(key: key);
+  const BahashaApp({super.key});
 
   @override
   Widget build(BuildContext context) {

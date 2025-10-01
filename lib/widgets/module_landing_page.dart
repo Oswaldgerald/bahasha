@@ -9,14 +9,14 @@ class ModuleLandingPage extends StatelessWidget {
   final String heroTag;
 
   const ModuleLandingPage({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     required this.icon,
     required this.gradientColors,
     required this.contributions,
     required this.heroTag,
-  }) : super(key: key);
+  });
 
   int get totalContributions =>
       contributions.fold(0, (sum, item) => sum + (item['amount'] as int));
@@ -133,6 +133,7 @@ class ModuleLandingPage extends StatelessWidget {
                   elevation: 3,
                   child: ListTile(
                     leading: CircleAvatar(
+                      // ignore: deprecated_member_use
                       backgroundColor: gradientColors.first.withOpacity(0.2),
                       child: Icon(icon, color: gradientColors.first),
                     ),

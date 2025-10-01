@@ -6,7 +6,7 @@ import '../../jumuiya/presentation/jumuiya_landing_page.dart';
 import '../../mavuno/presentation/mavuno_landing_page.dart';
 
 class LandingPage extends StatelessWidget {
-  const LandingPage({Key? key}) : super(key: key);
+  const LandingPage({super.key});
 
   final List<Map<String, dynamic>> modules = const [
     {
@@ -95,12 +95,11 @@ class _ModuleCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const _ModuleCard({
-    Key? key,
     required this.name,
     required this.icon,
     required this.color,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -112,6 +111,7 @@ class _ModuleCard extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             gradient: LinearGradient(
+              // ignore: deprecated_member_use
               colors: [color.withOpacity(0.85), color.withOpacity(0.6)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -119,6 +119,7 @@ class _ModuleCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
+                // ignore: deprecated_member_use
                 color: color.withOpacity(0.3),
                 blurRadius: 8,
                 offset: const Offset(2, 4),

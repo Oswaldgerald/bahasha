@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../widgets/module_landing_page.dart';
 
 class AhadiLandingPage extends StatelessWidget {
-  const AhadiLandingPage({Key? key}) : super(key: key);
+  const AhadiLandingPage({super.key});
 
   final List<Map<String, dynamic>> weeklyContributions = const [
     {'week': 'Week 1', 'amount': 3000, 'date': '01/09/2025'},

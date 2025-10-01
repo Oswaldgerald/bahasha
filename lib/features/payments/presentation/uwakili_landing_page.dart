@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class UwakiliLandingPage extends StatelessWidget {
-  const UwakiliLandingPage({Key? key}) : super(key: key);
+  const UwakiliLandingPage({super.key});
 
   @override
   Widget build(BuildContext context) {

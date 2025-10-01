@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../widgets/module_landing_page.dart';
 
 class JumuiyaLandingPage extends StatelessWidget {
-  const JumuiyaLandingPage({Key? key}) : super(key: key);
+  const JumuiyaLandingPage({super.key});
 
   final List<Map<String, dynamic>> weeklyContributions = const [
     {'week': 'Week 1', 'amount': 4000, 'date': '01/09/2025'},

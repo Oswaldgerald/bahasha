@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../widgets/module_landing_page.dart';
 
 class MavunoLandingPage extends StatelessWidget {
-  const MavunoLandingPage({Key? key}) : super(key: key);
+  const MavunoLandingPage({super.key});
 
   final List<Map<String, dynamic>> weeklyContributions = const [
     {'week': 'Week 1', 'amount': 5500, 'date': '01/09/2025'},

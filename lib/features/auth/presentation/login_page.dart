@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        "Church Offering System",
+                        "Church Offering",
                         style: TextStyle(color: Colors.black54, fontSize: 14),
                       ),
                       const SizedBox(height: 30),
@@ -162,6 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
+                                    color: Colors.white
                                   ),
                                 ),
                         ),

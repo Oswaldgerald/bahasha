@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -46,120 +48,170 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final isLoading = widget.authController.isBusy;
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Icon(
-                      Icons.church_rounded,
-                      size: 68,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(height: 18),
-                    const Text(
-                      'Bahasha',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 34,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.primaryDark,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Church Contribution Management',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(height: 36),
-                    TextFormField(
-                      controller: _identifierController,
-                      textInputAction: TextInputAction.next,
-                      autocorrect: false,
-                      decoration: const InputDecoration(
-                        labelText: 'Username or phone number',
-                        prefixIcon: Icon(Icons.person_outline_rounded),
-                      ),
-                      validator: (value) =>
-                          value == null || value.trim().isEmpty
-                          ? 'Enter your username or phone number.'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) {
-                        if (!isLoading) _handleLogin();
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_outline_rounded),
-                        suffixIcon: IconButton(
-                          tooltip: _obscurePassword
-                              ? 'Show password'
-                              : 'Hide password',
-                          onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/church-login.webp',
+            fit: BoxFit.cover,
+            alignment: Alignment.centerLeft,
+          ),
+          ColoredBox(color: Colors.white.withValues(alpha: 0.64)),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 28,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(24, 28, 24, 22),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.88),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.72),
                           ),
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x26083F41),
+                              blurRadius: 28,
+                              offset: Offset(0, 12),
+                            ),
+                          ],
                         ),
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Enter your password.'
-                          : null,
-                    ),
-                    if (widget.authController.errorMessage != null) ...[
-                      const SizedBox(height: 14),
-                      Semantics(
-                        liveRegion: true,
-                        child: Text(
-                          widget.authController.errorMessage!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.error),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 22),
-                    ElevatedButton.icon(
-                      onPressed: isLoading ? null : _handleLogin,
-                      icon: isLoading
-                          ? const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Icon(
+                                Icons.church_rounded,
+                                size: 68,
+                                color: AppColors.primary,
                               ),
-                            )
-                          : const Icon(Icons.login_rounded),
-                      label: Text(isLoading ? 'Signing in...' : 'Sign in'),
+                              const SizedBox(height: 18),
+                              const Text(
+                                'Bahasha',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 34,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.primaryDark,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Church Contribution Management',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+                              TextFormField(
+                                controller: _identifierController,
+                                textInputAction: TextInputAction.next,
+                                autocorrect: false,
+                                decoration: const InputDecoration(
+                                  labelText: 'Username or phone number',
+                                  prefixIcon: Icon(
+                                    Icons.person_outline_rounded,
+                                  ),
+                                ),
+                                validator: (value) =>
+                                    value == null || value.trim().isEmpty
+                                    ? 'Enter your username or phone number.'
+                                    : null,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _passwordController,
+                                obscureText: _obscurePassword,
+                                textInputAction: TextInputAction.done,
+                                onFieldSubmitted: (_) {
+                                  if (!isLoading) _handleLogin();
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  prefixIcon: const Icon(
+                                    Icons.lock_outline_rounded,
+                                  ),
+                                  suffixIcon: IconButton(
+                                    tooltip: _obscurePassword
+                                        ? 'Show password'
+                                        : 'Hide password',
+                                    onPressed: () => setState(
+                                      () =>
+                                          _obscurePassword = !_obscurePassword,
+                                    ),
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_outlined
+                                          : Icons.visibility_off_outlined,
+                                    ),
+                                  ),
+                                ),
+                                validator: (value) =>
+                                    value == null || value.isEmpty
+                                    ? 'Enter your password.'
+                                    : null,
+                              ),
+                              if (widget.authController.errorMessage !=
+                                  null) ...[
+                                const SizedBox(height: 14),
+                                Semantics(
+                                  liveRegion: true,
+                                  child: Text(
+                                    widget.authController.errorMessage!,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: AppColors.error,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 22),
+                              ElevatedButton.icon(
+                                onPressed: isLoading ? null : _handleLogin,
+                                icon: isLoading
+                                    ? const SizedBox.square(
+                                        dimension: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Icon(Icons.login_rounded),
+                                label: Text(
+                                  isLoading ? 'Signing in...' : 'Sign in',
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              TextButton(
+                                onPressed: isLoading
+                                    ? null
+                                    : _showForgotPassword,
+                                child: const Text('Forgot password?'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: isLoading ? null : _showForgotPassword,
-                      child: const Text('Forgot password?'),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

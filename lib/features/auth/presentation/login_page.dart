@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../dashboard/presentation/landing_page.dart';
+
+import '../../../core/constants/app_colors.dart';
+import '../application/auth_controller.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, required this.authController});
+
+  final AuthController authController;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -10,175 +14,219 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
+  final _identifierController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  bool _isLoading = false;
 
-  void _handleLogin() {
+  @override
+  void dispose() {
+    _identifierController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
+    await widget.authController.login(
+      _identifierController.text,
+      _passwordController.text,
+    );
+  }
 
-    setState(() => _isLoading = true);
-
-    // Simulate login delay
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() => _isLoading = false);
-
-      Navigator.pushReplacement(
-        // ignore: use_build_context_synchronously
-        context,
-        MaterialPageRoute(builder: (_) => const LandingPage()),
-      );
-    });
+  Future<void> _showForgotPassword() async {
+    final emailController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    var submitting = false;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Reset password'),
+              content: Form(
+                key: formKey,
+                child: TextFormField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  autofocus: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Email address',
+                    prefixIcon: Icon(Icons.mail_outline_rounded),
+                  ),
+                  validator: (value) {
+                    final email = value?.trim() ?? '';
+                    if (!email.contains('@') || !email.contains('.')) {
+                      return 'Enter a valid email address.';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: submitting
+                      ? null
+                      : () => Navigator.of(dialogContext).pop(),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: submitting
+                      ? null
+                      : () async {
+                          if (!formKey.currentState!.validate()) return;
+                          final messenger = ScaffoldMessenger.of(context);
+                          setDialogState(() => submitting = true);
+                          try {
+                            final message = await widget.authController
+                                .requestPasswordReset(emailController.text);
+                            if (!dialogContext.mounted) return;
+                            Navigator.of(dialogContext).pop();
+                            messenger.showSnackBar(
+                              SnackBar(content: Text(message)),
+                            );
+                          } catch (_) {
+                            if (!dialogContext.mounted) return;
+                            setDialogState(() => submitting = false);
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Password reset could not be requested. Please retry.',
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                  child: submitting
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Send reset link'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    emailController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = widget.authController.isBusy;
     return Scaffold(
-      body: Container(
-        // 🔹 Gradient Background
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.deepPurple, Colors.purpleAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+      body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(28.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 🔹 Logo
-                      CircleAvatar(
-                        radius: 40,
-                        // ignore: deprecated_member_use
-                        backgroundColor: Colors.deepPurple.withOpacity(0.2),
-                        child: const Icon(
-                          Icons.church,
-                          size: 50,
-                          color: Colors.deepPurple,
-                        ),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Icon(
+                      Icons.church_rounded,
+                      size: 68,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(height: 18),
+                    const Text(
+                      'Bahasha',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 34,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryDark,
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        "Bahasha",
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Church Contribution Management',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 15,
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Church Offering",
-                        style: TextStyle(color: Colors.black54, fontSize: 14),
+                    ),
+                    const SizedBox(height: 36),
+                    TextFormField(
+                      controller: _identifierController,
+                      textInputAction: TextInputAction.next,
+                      autocorrect: false,
+                      decoration: const InputDecoration(
+                        labelText: 'Username or phone number',
+                        prefixIcon: Icon(Icons.person_outline_rounded),
                       ),
-                      const SizedBox(height: 30),
-
-                      // 🔹 Username Field
-                      TextFormField(
-                        controller: _usernameController,
-                        decoration: InputDecoration(
-                          labelText: 'Username',
-                          prefixIcon: const Icon(Icons.person),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                          ? 'Enter your username or phone number.'
+                          : null,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) {
+                        if (!isLoading) _handleLogin();
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        prefixIcon: const Icon(Icons.lock_outline_rounded),
+                        suffixIcon: IconButton(
+                          tooltip: _obscurePassword
+                              ? 'Show password'
+                              : 'Hide password',
+                          onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
                           ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your username';
-                          }
-                          return null;
-                        },
                       ),
-                      const SizedBox(height: 20),
-
-                      // 🔹 Password Field
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 4) {
-                            return 'Password must be at least 4 characters';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 30),
-
-                      // 🔹 Login Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          onPressed: _isLoading ? null : _handleLogin,
-                          child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white
-                                  ),
-                                ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // 🔹 Forgot Password
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "Forgot Password?",
-                          style: TextStyle(color: Colors.deepPurple),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Enter your password.'
+                          : null,
+                    ),
+                    if (widget.authController.errorMessage != null) ...[
+                      const SizedBox(height: 14),
+                      Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          widget.authController.errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: AppColors.error),
                         ),
                       ),
                     ],
-                  ),
+                    const SizedBox(height: 22),
+                    ElevatedButton.icon(
+                      onPressed: isLoading ? null : _handleLogin,
+                      icon: isLoading
+                          ? const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.login_rounded),
+                      label: Text(isLoading ? 'Signing in...' : 'Sign in'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: isLoading ? null : _showForgotPassword,
+                      child: const Text('Forgot password?'),
+                    ),
+                  ],
                 ),
               ),
             ),

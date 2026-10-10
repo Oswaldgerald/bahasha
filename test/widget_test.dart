@@ -1,33 +1,52 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:bahasha/features/auth/application/auth_controller.dart';
+import 'package:bahasha/features/auth/data/auth_service.dart';
+import 'package:bahasha/features/auth/domain/auth_session.dart';
+import 'package:bahasha/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+class FakeAuthGateway implements AuthGateway {
+  @override
+  Future<AuthSession?> restoreSession() async => null;
 
-void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp() as Widget);
+  @override
+  Future<AuthSession> login(String identifier, String password) async {
+    return const AuthSession(
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+      member: AuthMember(
+        id: 'member-id',
+        fullName: 'Amina Mushi',
+        approvalStatus: 'approved',
+      ),
+    );
+  }
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  @override
+  Future<void> logout() async {}
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+  @override
+  Future<String> requestPasswordReset(String email) async {
+    return 'Reset instructions sent.';
+  }
 }
 
-class MyApp {
-  const MyApp();
+void main() {
+  testWidgets('shows login and enters the authenticated dashboard', (
+    WidgetTester tester,
+  ) async {
+    final controller = AuthController(FakeAuthGateway());
+    await tester.pumpWidget(BahashaApp(authController: controller));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Username or phone number'), findsOneWidget);
+    expect(find.text('Forgot password?'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'amina');
+    await tester.enterText(find.byType(TextFormField).at(1), 'secret-password');
+    await tester.tap(find.text('Sign in'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Welcome, Amina Mushi'), findsOneWidget);
+  });
 }

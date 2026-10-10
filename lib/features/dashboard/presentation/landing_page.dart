@@ -6,7 +6,14 @@ import '../../jumuiya/presentation/jumuiya_landing_page.dart';
 import '../../mavuno/presentation/mavuno_landing_page.dart';
 
 class LandingPage extends StatelessWidget {
-  const LandingPage({super.key});
+  const LandingPage({
+    super.key,
+    required this.memberName,
+    required this.onLogout,
+  });
+
+  final String memberName;
+  final Future<void> Function() onLogout;
 
   final List<Map<String, dynamic>> modules = const [
     {
@@ -46,9 +53,16 @@ class LandingPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Bahasha Dashboard'),
+        title: Text(memberName.isEmpty ? 'Bahasha' : 'Welcome, $memberName'),
         elevation: 0,
         centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Sign out',
+            onPressed: onLogout,
+            icon: const Icon(Icons.logout_rounded),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -112,7 +126,10 @@ class _ModuleCard extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               // ignore: deprecated_member_use
-              colors: [color.withOpacity(0.85), color.withOpacity(0.6)],
+              colors: [
+                color.withValues(alpha: 0.85),
+                color.withValues(alpha: 0.6),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -120,7 +137,7 @@ class _ModuleCard extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 // ignore: deprecated_member_use
-                color: color.withOpacity(0.3),
+                color: color.withValues(alpha: 0.3),
                 blurRadius: 8,
                 offset: const Offset(2, 4),
               ),

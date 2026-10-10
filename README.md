@@ -1,19 +1,58 @@
-# bahasha
+# Bahasha Mobile
 
-A new Flutter project.
+Flutter client for approved congregation members using the Bahasha Django Ninja
+API.
 
-## Getting Started
+## Local Development
 
-This project is a starting point for a Flutter application.
+Start the Django project first from the sibling `bahasha-system` directory:
 
-A few resources to get you started if this is your first Flutter project:
+```sh
+docker compose up -d
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Install Flutter dependencies and run the app:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# bahasha
-# bahasha
-# bahasha
+```sh
+flutter pub get
+flutter run
+```
+
+The default API addresses are:
+
+- Android emulator: `http://10.0.2.2:8000/api/v1`
+- iOS simulator, desktop, and web: `http://127.0.0.1:8000/api/v1`
+
+Override the endpoint for a physical phone or another environment:
+
+```sh
+flutter run --dart-define=API_BASE_URL=http://192.168.0.32:8000/api/v1
+```
+
+Production builds must use an HTTPS endpoint:
+
+```sh
+flutter build apk --dart-define=API_BASE_URL=https://example.org/api/v1
+```
+
+Android release signing reads `android/key.properties`. Keep that file and the
+keystore outside Git. A minimal file contains:
+
+```properties
+storePassword=...
+keyPassword=...
+keyAlias=upload
+storeFile=/absolute/path/to/upload-keystore.jks
+```
+
+## Verification
+
+```sh
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze
+flutter test
+```
+
+Authentication tokens are stored with `flutter_secure_storage`. Access tokens are
+short-lived, refresh tokens rotate through the backend, and logout clears local
+credentials even when the API cannot be reached.

@@ -63,7 +63,7 @@ class ModuleLandingPage extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: gradientColors.last.withOpacity(0.22),
+                  color: gradientColors.last.withValues(alpha: 0.22),
                   blurRadius: 24,
                   offset: const Offset(0, 10),
                 ),
@@ -99,7 +99,7 @@ class ModuleLandingPage extends StatelessWidget {
                         height: 74,
                         width: 74,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.16),
+                          color: Colors.white.withValues(alpha: 0.16),
                           borderRadius: BorderRadius.circular(22),
                         ),
                         child: Icon(icon, size: 38, color: Colors.white),
@@ -145,7 +145,7 @@ class ModuleLandingPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 18,
                     offset: const Offset(0, 8),
                   ),
@@ -239,7 +239,7 @@ class ModuleLandingPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.07),
+                      color: Colors.black.withValues(alpha: 0.07),
                       blurRadius: 16,
                       offset: const Offset(0, 7),
                     ),
@@ -254,7 +254,7 @@ class ModuleLandingPage extends StatelessWidget {
                     height: 58,
                     width: 58,
                     decoration: BoxDecoration(
-                      color: gradientColors.first.withOpacity(0.14),
+                      color: gradientColors.first.withValues(alpha: 0.14),
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: Icon(icon, color: gradientColors.first, size: 28),
@@ -278,7 +278,7 @@ class ModuleLandingPage extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: gradientColors.last.withOpacity(0.12),
+                            color: gradientColors.last.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: Text(
@@ -365,7 +365,7 @@ class AppBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white.withOpacity(0.16),
+      color: Colors.white.withValues(alpha: 0.16),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -391,9 +391,9 @@ class InfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.16),
+        color: Colors.white.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withOpacity(0.18)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

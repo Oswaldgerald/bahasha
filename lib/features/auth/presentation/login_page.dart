@@ -35,83 +35,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _showForgotPassword() async {
-    final emailController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-    var submitting = false;
     await showDialog<void>(
       context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: const Text('Reset password'),
-              content: Form(
-                key: formKey,
-                child: TextFormField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  autofocus: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Email address',
-                    prefixIcon: Icon(Icons.mail_outline_rounded),
-                  ),
-                  validator: (value) {
-                    final email = value?.trim() ?? '';
-                    if (!email.contains('@') || !email.contains('.')) {
-                      return 'Enter a valid email address.';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: submitting
-                      ? null
-                      : () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancel'),
-                ),
-                FilledButton(
-                  onPressed: submitting
-                      ? null
-                      : () async {
-                          if (!formKey.currentState!.validate()) return;
-                          final messenger = ScaffoldMessenger.of(context);
-                          setDialogState(() => submitting = true);
-                          try {
-                            final message = await widget.authController
-                                .requestPasswordReset(emailController.text);
-                            if (!dialogContext.mounted) return;
-                            Navigator.of(dialogContext).pop();
-                            messenger.showSnackBar(
-                              SnackBar(content: Text(message)),
-                            );
-                          } catch (_) {
-                            if (!dialogContext.mounted) return;
-                            setDialogState(() => submitting = false);
-                            messenger.showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Password reset could not be requested. Please retry.',
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                  child: submitting
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Send reset link'),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      builder: (_) =>
+          _ForgotPasswordDialog(authController: widget.authController),
     );
-    emailController.dispose();
   }
 
   @override
@@ -233,6 +161,90 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ForgotPasswordDialog extends StatefulWidget {
+  const _ForgotPasswordDialog({required this.authController});
+
+  final AuthController authController;
+
+  @override
+  State<_ForgotPasswordDialog> createState() => _ForgotPasswordDialogState();
+}
+
+class _ForgotPasswordDialogState extends State<_ForgotPasswordDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  bool _submitting = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _submitting = true);
+    try {
+      final message = await widget.authController.requestPasswordReset(
+        _emailController.text,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      messenger.showSnackBar(SnackBar(content: Text(message)));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Password reset could not be requested. Please retry.'),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Reset password'),
+      content: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Email address',
+            prefixIcon: Icon(Icons.mail_outline_rounded),
+          ),
+          validator: (value) {
+            final email = value?.trim() ?? '';
+            if (!email.contains('@') || !email.contains('.')) {
+              return 'Enter a valid email address.';
+            }
+            return null;
+          },
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _submitting ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _submitting ? null : _submit,
+          child: _submitting
+              ? const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Send reset link'),
+        ),
+      ],
     );
   }
 }

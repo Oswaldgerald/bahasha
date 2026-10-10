@@ -9,6 +9,7 @@ import '../domain/auth_session.dart';
 abstract class AuthGateway {
   Future<AuthSession> login(String identifier, String password);
   Future<AuthSession?> restoreSession();
+  Future<AuthSession> refreshSession();
   Future<void> logout();
   Future<String> requestPasswordReset(String email);
 }
@@ -67,15 +68,24 @@ class AuthService implements AuthGateway {
       );
     } on ApiException catch (error) {
       if (!error.isUnauthorized) rethrow;
-      return _refresh(stored.refreshToken);
+      return refreshSession();
     }
   }
 
-  Future<AuthSession> _refresh(String refreshToken) async {
+  @override
+  Future<AuthSession> refreshSession() async {
+    final stored = await _tokenStorage.readTokens();
+    if (stored == null) {
+      throw const ApiException(
+        code: 'TOKEN_INVALID',
+        message: 'Your session has ended. Please sign in again.',
+        statusCode: 401,
+      );
+    }
     try {
       final payload = await _apiClient.postJson(
         '/auth/token/refresh',
-        body: {'refresh_token': refreshToken},
+        body: {'refresh_token': stored.refreshToken},
       );
       final session = AuthSession.fromTokenResponse(payload);
       await _save(session);

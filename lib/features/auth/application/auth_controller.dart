@@ -58,6 +58,20 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Future<String?> refreshAccessToken() async {
+    try {
+      session = await _gateway.refreshSession();
+      status = AuthStatus.signedIn;
+      notifyListeners();
+      return session?.accessToken;
+    } catch (_) {
+      session = null;
+      status = AuthStatus.signedOut;
+      notifyListeners();
+      return null;
+    }
+  }
+
   Future<String> requestPasswordReset(String email) {
     return _gateway.requestPasswordReset(email);
   }

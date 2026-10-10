@@ -11,6 +11,12 @@ Start the Django project first from the sibling `bahasha-system` directory:
 docker compose up -d
 ```
 
+To populate repeatable local contribution history for an approved member:
+
+```sh
+docker compose exec web python manage.py seed_mobile_demo herman
+```
+
 Install Flutter dependencies and run the app:
 
 ```sh
@@ -56,3 +62,8 @@ flutter test
 Authentication tokens are stored with `flutter_secure_storage`. Access tokens are
 short-lived, refresh tokens rotate through the backend, and logout clears local
 credentials even when the API cannot be reached.
+
+The dashboard and category detail screens use `/bootstrap`, category-week, and
+contribution-history APIs. Category names, icons, colors, visibility, guidance,
+totals, and missing-week status are controlled by Django rather than hard-coded in
+the app.

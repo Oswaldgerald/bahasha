@@ -15,6 +15,16 @@ String formatMoney(Money money) {
 
 String formatDate(DateTime date) => _dateFormat.format(date);
 
+String frequencyLabel(String frequency) {
+  return switch (frequency) {
+    'weekly' => 'Weekly · Kila wiki',
+    'monthly' => 'Monthly · Kila mwezi',
+    'annual' => 'Annual · Kila mwaka',
+    'seasonal' => 'Seasonal · Kwa msimu',
+    _ => frequency.isEmpty ? 'Flexible · Wakati wowote' : frequency,
+  };
+}
+
 Color categoryColor(String hex) {
   final value = int.tryParse(hex.replaceFirst('#', ''), radix: 16);
   return value == null ? const Color(0xFF0A4A4C) : Color(0xFF000000 | value);

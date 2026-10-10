@@ -52,20 +52,62 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bahasha'),
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Bahasha'),
+            Text(
+              'My contributions · Sadaka zangu',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
         actions: [
           if ((_bootstrap?.unreadNotificationsCount ?? 0) > 0)
             Badge(
               label: Text('${_bootstrap!.unreadNotificationsCount}'),
-              child: const Icon(Icons.notifications_none_rounded),
+              child: IconButton(
+                tooltip: 'Notifications',
+                onPressed: () {},
+                icon: const Icon(Icons.notifications_none_rounded),
+              ),
             ),
-          const SizedBox(width: 8),
-          IconButton(
-            tooltip: 'Sign out',
-            onPressed: widget.onLogout,
-            icon: const Icon(Icons.logout_rounded),
+          PopupMenuButton<String>(
+            tooltip: 'Account menu',
+            onSelected: (value) {
+              if (value == 'logout') widget.onLogout();
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'logout',
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.logout_rounded),
+                  title: Text('Sign out'),
+                  subtitle: Text('Ondoka'),
+                ),
+              ),
+            ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                child: Text(
+                  _initials(_bootstrap?.member.fullName),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: _body(),
@@ -87,9 +129,9 @@ class _LandingPageState extends State<LandingPage> {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
         children: [
           _MemberHeader(data: data),
-          const SizedBox(height: 24),
+          const SizedBox(height: 22),
           Text(
-            'Contribution categories',
+            'Choose a contribution',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
@@ -97,7 +139,7 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Aina za sadaka',
+            'Chagua aina ya sadaka kuona wiki na historia yako.',
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 14),
@@ -112,7 +154,7 @@ class _LandingPageState extends State<LandingPage> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 0.86,
+                childAspectRatio: 0.9,
               ),
               itemBuilder: (context, index) {
                 final category = data.categories[index];
@@ -137,6 +179,12 @@ class _LandingPageState extends State<LandingPage> {
       ),
     );
   }
+
+  String _initials(String? name) {
+    final parts = (name ?? '').trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return 'B';
+    return parts.take(2).map((part) => part[0].toUpperCase()).join();
+  }
 }
 
 class _MemberHeader extends StatelessWidget {
@@ -148,10 +196,10 @@ class _MemberHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final week = data.activePeriod.week;
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.primary,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,28 +216,50 @@ class _MemberHeader extends StatelessWidget {
             '${data.member.churchName} · Bahasha ${data.member.bahashaNumber}',
             style: const TextStyle(color: Colors.white70),
           ),
-          const SizedBox(height: 18),
-          Row(
-            children: [
-              const Icon(Icons.calendar_month_rounded, color: Colors.white),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  week == null
-                      ? 'No active contribution week'
-                      : 'Week ${week.number} · ${formatDate(week.sundayDate)}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_month_rounded, color: Colors.white),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        week == null
+                            ? 'No active week'
+                            : 'Current week · Wiki ya sasa',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        week == null
+                            ? 'Contact your church administrator'
+                            : 'Week ${week.number} · ${formatDate(week.sundayDate)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              if (data.activePeriod.year != null)
-                Text(
-                  '${data.activePeriod.year}',
-                  style: const TextStyle(color: Colors.white70),
-                ),
-            ],
+                if (data.activePeriod.year != null)
+                  Text(
+                    '${data.activePeriod.year}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -209,7 +279,7 @@ class _CategoryCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -224,7 +294,7 @@ class _CategoryCard extends StatelessWidget {
                     width: 44,
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(categoryIcon(category.iconKey), color: color),
                   ),
@@ -245,9 +315,7 @@ class _CategoryCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                category.frequency == 'weekly'
-                    ? 'Weekly · Kila wiki'
-                    : category.frequency,
+                frequencyLabel(category.frequency),
                 style: const TextStyle(
                   fontSize: 12,
                   color: AppColors.textSecondary,
@@ -263,18 +331,29 @@ class _CategoryCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                category.missingWeeksCount == 0
-                    ? 'Up to date · Imekamilika'
-                    : '${category.missingWeeksCount} missing weeks',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: category.missingWeeksCount == 0
-                      ? const Color(0xFF217A52)
-                      : const Color(0xFFB54708),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                decoration: BoxDecoration(
+                  color:
+                      (category.missingWeeksCount == 0
+                              ? const Color(0xFF217A52)
+                              : const Color(0xFFB54708))
+                          .withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  category.missingWeeksCount == 0
+                      ? 'Up to date · Imekamilika'
+                      : '${category.missingWeeksCount} missing · Hazijalipwa',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: category.missingWeeksCount == 0
+                        ? const Color(0xFF217A52)
+                        : const Color(0xFFB54708),
+                  ),
                 ),
               ),
             ],

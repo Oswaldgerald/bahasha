@@ -123,7 +123,21 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.category.swahiliName),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(widget.category.swahiliName),
+              if (widget.category.name != widget.category.swahiliName)
+                Text(
+                  widget.category.name,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+            ],
+          ),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Weeks · Wiki'),
@@ -198,12 +212,12 @@ class _CategorySummary extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border(left: BorderSide(color: color, width: 4)),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -212,7 +226,7 @@ class _CategorySummary extends StatelessWidget {
             width: 52,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(categoryIcon(category.iconKey), color: color, size: 28),
           ),
@@ -237,7 +251,7 @@ class _CategorySummary extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   paymentsAvailable
-                      ? 'Payment is available'
+                      ? 'Ready to contribute · Tayari kulipa'
                       : 'Online payment coming soon · Malipo yanakuja',
                   style: const TextStyle(
                     fontSize: 12,
@@ -316,17 +330,32 @@ class _WeekList extends StatelessWidget {
               style: TextStyle(color: stateColor),
             ),
             isThreeLine: true,
-            trailing: week.contributed.amount > 0
-                ? Text(
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (week.contributed.amount > 0)
+                  Text(
                     formatMoney(week.contributed),
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+                    style: const TextStyle(fontWeight: FontWeight.w900),
                   )
-                : Icon(
+                else
+                  Icon(
                     week.paymentEligible
                         ? Icons.schedule_rounded
                         : Icons.remove_rounded,
                     color: stateColor,
                   ),
+                if (week.paymentEligible && week.contributed.amount == 0)
+                  const Text(
+                    'Can contribute',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },
@@ -385,12 +414,19 @@ class _HistoryList extends StatelessWidget {
               'Week ${contribution.weekNumber} · ${formatDate(contribution.contributionDate)}\n${contribution.reference}',
             ),
             isThreeLine: true,
-            trailing: Text(
-              contribution.status.toUpperCase(),
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF217A52),
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              decoration: BoxDecoration(
+                color: const Color(0xFF217A52).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                contribution.status.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF217A52),
+                ),
               ),
             ),
           ),

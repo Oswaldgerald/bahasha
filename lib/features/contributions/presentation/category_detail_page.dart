@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../data/member_api_service.dart';
 import '../domain/member_data.dart';
+import '../../payments/presentation/payment_page.dart';
 import 'contribution_ui.dart';
 
 class CategoryDetailPage extends StatefulWidget {
@@ -116,6 +117,19 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
     }
   }
 
+  Future<void> _openPayment(ContributionWeek week) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PaymentPage(
+          category: widget.category,
+          week: week,
+          financialYearId: widget.financialYearId,
+          paymentsAvailable: widget.paymentsAvailable,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final color = categoryColor(widget.category.colorHex);
@@ -180,6 +194,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
             hasMore: _hasMoreWeeks,
             loadingMore: _loadingMore,
             onLoadMore: _loadMoreWeeks,
+            onWeekSelected: _openPayment,
           ),
         ),
         RefreshIndicator(
@@ -274,6 +289,7 @@ class _WeekList extends StatelessWidget {
     required this.hasMore,
     required this.loadingMore,
     required this.onLoadMore,
+    required this.onWeekSelected,
   });
 
   final List<ContributionWeek> weeks;
@@ -281,6 +297,7 @@ class _WeekList extends StatelessWidget {
   final bool hasMore;
   final bool loadingMore;
   final Future<void> Function() onLoadMore;
+  final ValueChanged<ContributionWeek> onWeekSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -316,6 +333,8 @@ class _WeekList extends StatelessWidget {
         return Card(
           margin: EdgeInsets.zero,
           child: ListTile(
+            key: ValueKey('contribution-week-${week.id}'),
+            onTap: week.paymentEligible ? () => onWeekSelected(week) : null,
             leading: CircleAvatar(
               backgroundColor: color.withValues(alpha: 0.12),
               foregroundColor: color,
@@ -330,30 +349,39 @@ class _WeekList extends StatelessWidget {
               style: TextStyle(color: stateColor),
             ),
             isThreeLine: true,
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                if (week.contributed.amount > 0)
-                  Text(
-                    formatMoney(week.contributed),
-                    style: const TextStyle(fontWeight: FontWeight.w900),
-                  )
-                else
-                  Icon(
-                    week.paymentEligible
-                        ? Icons.schedule_rounded
-                        : Icons.remove_rounded,
-                    color: stateColor,
-                  ),
-                if (week.paymentEligible && week.contributed.amount == 0)
-                  const Text(
-                    'Can contribute',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (week.contributed.amount > 0)
+                      Text(
+                        formatMoney(week.contributed),
+                        style: const TextStyle(fontWeight: FontWeight.w900),
+                      )
+                    else
+                      Icon(
+                        week.paymentEligible
+                            ? Icons.schedule_rounded
+                            : Icons.remove_rounded,
+                        color: stateColor,
+                      ),
+                    if (week.paymentEligible)
+                      const Text(
+                        'Contribute · Lipa',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                  ],
+                ),
+                if (week.paymentEligible) ...[
+                  const SizedBox(width: 6),
+                  const Icon(Icons.chevron_right_rounded),
+                ],
               ],
             ),
           ),

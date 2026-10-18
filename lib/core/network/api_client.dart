@@ -27,11 +27,12 @@ class ApiClient {
     String path, {
     Map<String, dynamic>? body,
     String? accessToken,
+    Map<String, String> headers = const {},
   }) async {
     return _send(
       () => _httpClient.post(
         _uri(path),
-        headers: _headers(accessToken),
+        headers: {..._headers(accessToken), ...headers},
         body: jsonEncode(body ?? const <String, dynamic>{}),
       ),
     );

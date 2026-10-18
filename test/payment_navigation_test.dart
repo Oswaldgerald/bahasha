@@ -2,6 +2,8 @@ import 'package:bahasha/features/contributions/data/member_api_service.dart';
 import 'package:bahasha/features/contributions/domain/member_data.dart';
 import 'package:bahasha/features/contributions/presentation/category_detail_page.dart';
 import 'package:bahasha/features/payments/presentation/payment_page.dart';
+import 'package:bahasha/features/payments/data/payment_api_service.dart';
+import 'package:bahasha/features/payments/domain/payment_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -42,6 +44,26 @@ class _PaymentTestGateway implements MemberDataGateway {
   }) async => const PagedResult(items: [], hasMore: false);
 }
 
+class _NoopPaymentGateway implements PaymentGateway {
+  @override
+  Future<PaymentIntent> createIntent({
+    required String categoryId,
+    required String financialYearId,
+    required String contributionWeekId,
+    required String provider,
+    required String payerPhoneNumber,
+    required String amount,
+    required String idempotencyKey,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<PaymentIntent> paymentIntent(String paymentIntentId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<PaymentMethod>> paymentMethods() async => const [];
+}
+
 const _category = ContributionCategory(
   id: 'category-ahadi',
   key: 'ahadi',
@@ -66,6 +88,7 @@ void main() {
           category: _category,
           financialYearId: 'year-2026',
           memberData: _PaymentTestGateway(),
+          paymentGateway: _NoopPaymentGateway(),
           paymentsAvailable: false,
         ),
       ),
@@ -91,6 +114,7 @@ void main() {
           category: _category,
           financialYearId: 'year-2026',
           memberData: _PaymentTestGateway(paymentEligible: false),
+          paymentGateway: _NoopPaymentGateway(),
           paymentsAvailable: false,
         ),
       ),

@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../data/member_api_service.dart';
 import '../domain/member_data.dart';
 import '../../payments/presentation/payment_page.dart';
+import '../../payments/data/payment_api_service.dart';
 import 'contribution_ui.dart';
 
 class CategoryDetailPage extends StatefulWidget {
@@ -12,12 +13,14 @@ class CategoryDetailPage extends StatefulWidget {
     required this.category,
     required this.financialYearId,
     required this.memberData,
+    required this.paymentGateway,
     required this.paymentsAvailable,
   });
 
   final ContributionCategory category;
   final String? financialYearId;
   final MemberDataGateway memberData;
+  final PaymentGateway paymentGateway;
   final bool paymentsAvailable;
 
   @override
@@ -118,16 +121,18 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   }
 
   Future<void> _openPayment(ContributionWeek week) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
+    final paymentCompleted = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
         builder: (_) => PaymentPage(
           category: widget.category,
           week: week,
           financialYearId: widget.financialYearId,
+          paymentGateway: widget.paymentGateway,
           paymentsAvailable: widget.paymentsAvailable,
         ),
       ),
     );
+    if (paymentCompleted == true) await _load();
   }
 
   @override

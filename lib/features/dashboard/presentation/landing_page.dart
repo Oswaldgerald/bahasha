@@ -5,15 +5,18 @@ import '../../contributions/data/member_api_service.dart';
 import '../../contributions/domain/member_data.dart';
 import '../../contributions/presentation/category_detail_page.dart';
 import '../../contributions/presentation/contribution_ui.dart';
+import '../../payments/data/payment_api_service.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({
     super.key,
     required this.memberData,
+    required this.paymentGateway,
     required this.onLogout,
   });
 
   final MemberDataGateway memberData;
+  final PaymentGateway paymentGateway;
   final Future<void> Function() onLogout;
 
   @override
@@ -166,6 +169,7 @@ class _LandingPageState extends State<LandingPage> {
                         category: category,
                         financialYearId: data.activePeriod.financialYearId,
                         memberData: widget.memberData,
+                        paymentGateway: widget.paymentGateway,
                         paymentsAvailable:
                             data.capabilities.paymentsEnabled &&
                             category.paymentsEnabled,

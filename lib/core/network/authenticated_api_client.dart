@@ -20,6 +20,21 @@ class AuthenticatedApiClient {
     );
   }
 
+  Future<Map<String, dynamic>> postJson(
+    String path, {
+    Map<String, dynamic>? body,
+    Map<String, String> headers = const {},
+  }) {
+    return _withRefresh(
+      (token) => _apiClient.postJson(
+        path,
+        accessToken: token,
+        body: body,
+        headers: headers,
+      ),
+    );
+  }
+
   Future<Map<String, dynamic>> _withRefresh(
     Future<Map<String, dynamic>> Function(String token) request,
   ) async {

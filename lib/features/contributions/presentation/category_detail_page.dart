@@ -31,7 +31,8 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   final List<ContributionWeek> _weeks = [];
   final List<ContributionRecord> _contributions = [];
   bool _loading = true;
-  bool _loadingMore = false;
+  bool _loadingMoreWeeks = false;
+  bool _loadingMoreContributions = false;
   Object? _error;
   String? _weekCursor;
   String? _contributionCursor;
@@ -81,8 +82,8 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   }
 
   Future<void> _loadMoreWeeks() async {
-    if (_loadingMore || !_hasMoreWeeks) return;
-    setState(() => _loadingMore = true);
+    if (_loadingMoreWeeks || !_hasMoreWeeks) return;
+    setState(() => _loadingMoreWeeks = true);
     try {
       final result = await widget.memberData.categoryWeeks(
         categoryId: widget.category.id,
@@ -95,14 +96,16 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
         _weekCursor = result.nextCursor;
         _hasMoreWeeks = result.hasMore;
       });
+    } catch (_) {
+      _showLoadMoreError();
     } finally {
-      if (mounted) setState(() => _loadingMore = false);
+      if (mounted) setState(() => _loadingMoreWeeks = false);
     }
   }
 
   Future<void> _loadMoreContributions() async {
-    if (_loadingMore || !_hasMoreContributions) return;
-    setState(() => _loadingMore = true);
+    if (_loadingMoreContributions || !_hasMoreContributions) return;
+    setState(() => _loadingMoreContributions = true);
     try {
       final result = await widget.memberData.contributions(
         categoryId: widget.category.id,
@@ -115,9 +118,20 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
         _contributionCursor = result.nextCursor;
         _hasMoreContributions = result.hasMore;
       });
+    } catch (_) {
+      _showLoadMoreError();
     } finally {
-      if (mounted) setState(() => _loadingMore = false);
+      if (mounted) setState(() => _loadingMoreContributions = false);
     }
+  }
+
+  void _showLoadMoreError() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Could not load more. Please retry · Jaribu tena.'),
+      ),
+    );
   }
 
   Future<void> _openPayment(ContributionWeek week) async {
@@ -182,10 +196,25 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error != null) {
       return Center(
-        child: FilledButton.icon(
-          onPressed: _load,
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Retry · Jaribu tena'),
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.cloud_off_rounded, size: 44),
+              const SizedBox(height: 12),
+              const Text(
+                'Could not load this category.\nImeshindikana kupakia taarifa.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: _load,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry · Jaribu tena'),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -197,7 +226,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
             weeks: _weeks,
             color: color,
             hasMore: _hasMoreWeeks,
-            loadingMore: _loadingMore,
+            loadingMore: _loadingMoreWeeks,
             onLoadMore: _loadMoreWeeks,
             onWeekSelected: _openPayment,
           ),
@@ -206,9 +235,8 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
           onRefresh: _load,
           child: _HistoryList(
             contributions: _contributions,
-            color: color,
             hasMore: _hasMoreContributions,
-            loadingMore: _loadingMore,
+            loadingMore: _loadingMoreContributions,
             onLoadMore: _loadMoreContributions,
           ),
         ),
@@ -399,14 +427,12 @@ class _WeekList extends StatelessWidget {
 class _HistoryList extends StatelessWidget {
   const _HistoryList({
     required this.contributions,
-    required this.color,
     required this.hasMore,
     required this.loadingMore,
     required this.onLoadMore,
   });
 
   final List<ContributionRecord> contributions;
-  final Color color;
   final bool hasMore;
   final bool loadingMore;
   final Future<void> Function() onLoadMore;
@@ -429,16 +455,25 @@ class _HistoryList extends StatelessWidget {
           return Center(
             child: TextButton.icon(
               onPressed: loadingMore ? null : onLoadMore,
-              icon: const Icon(Icons.expand_more_rounded),
+              icon: loadingMore
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.expand_more_rounded),
               label: const Text('Load more · Zaidi'),
             ),
           );
         }
         final contribution = contributions[index];
+        final statusColor = contributionStatusColor(contribution.status);
         return Card(
           margin: EdgeInsets.zero,
           child: ListTile(
-            leading: Icon(Icons.check_circle_rounded, color: color),
+            leading: Icon(
+              contributionStatusIcon(contribution.status),
+              color: statusColor,
+            ),
             title: Text(
               formatMoney(contribution.amount),
               style: const TextStyle(fontWeight: FontWeight.w900),
@@ -450,15 +485,15 @@ class _HistoryList extends StatelessWidget {
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
               decoration: BoxDecoration(
-                color: const Color(0xFF217A52).withValues(alpha: 0.1),
+                color: statusColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                contribution.status.toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF217A52),
+                contributionStatusLabel(contribution.status),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: statusColor,
                 ),
               ),
             ),

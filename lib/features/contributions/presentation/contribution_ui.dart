@@ -53,6 +53,33 @@ String weekStateLabel(String state) {
   };
 }
 
+String contributionStatusLabel(String status) {
+  return switch (status.toUpperCase()) {
+    'POSTED' => 'Posted · Imepokelewa',
+    'PENDING' => 'Pending · Inasubiri',
+    'REVERSED' => 'Reversed · Imerudishwa',
+    _ => status,
+  };
+}
+
+Color contributionStatusColor(String status) {
+  return switch (status.toUpperCase()) {
+    'POSTED' => const Color(0xFF217A52),
+    'PENDING' => const Color(0xFFB54708),
+    'REVERSED' => const Color(0xFFB3261E),
+    _ => const Color(0xFF687078),
+  };
+}
+
+IconData contributionStatusIcon(String status) {
+  return switch (status.toUpperCase()) {
+    'POSTED' => Icons.check_circle_rounded,
+    'PENDING' => Icons.schedule_rounded,
+    'REVERSED' => Icons.undo_rounded,
+    _ => Icons.help_outline_rounded,
+  };
+}
+
 Color weekStateColor(String state) {
   return switch (state) {
     'paid' => const Color(0xFF217A52),

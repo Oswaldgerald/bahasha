@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
@@ -30,6 +32,9 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
+  static const _pollInterval = Duration(seconds: 3);
+  static const _maxPollAttempts = 40;
+
   final _formKey = GlobalKey<FormState>();
   final _scrollController = ScrollController();
   late final TextEditingController _amountController;
@@ -42,6 +47,8 @@ class _PaymentPageState extends State<PaymentPage> {
   bool _loadingMethods = false;
   bool _submitting = false;
   bool _checkingStatus = false;
+  Timer? _pollTimer;
+  int _pollAttempts = 0;
 
   @override
   void initState() {
@@ -59,6 +66,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
     _scrollController.dispose();
     _amountController.dispose();
     _phoneController.dispose();
@@ -96,6 +104,10 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   Widget build(BuildContext context) {
     final color = categoryColor(widget.category.colorHex);
+    // Freeze the form once a request is in flight so it always matches the
+    // payment shown in the status card.
+    final formLocked =
+        !widget.paymentsAvailable || _submitting || _intent != null;
     return Scaffold(
       key: const ValueKey('payment-page'),
       appBar: AppBar(title: const Text('Payment · Malipo')),
@@ -167,7 +179,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     TextFormField(
                       key: const ValueKey('payment-amount'),
                       controller: _amountController,
-                      enabled: widget.paymentsAvailable,
+                      enabled: !formLocked,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -198,7 +210,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     TextFormField(
                       key: const ValueKey('payment-phone'),
                       controller: _phoneController,
-                      enabled: widget.paymentsAvailable,
+                      enabled: !formLocked,
                       keyboardType: TextInputType.phone,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: const InputDecoration(
@@ -240,7 +252,7 @@ class _PaymentPageState extends State<PaymentPage> {
                               ),
                             )
                             .toList(),
-                        onChanged: _submitting
+                        onChanged: formLocked
                             ? null
                             : (provider) =>
                                   setState(() => _selectedProvider = provider),
@@ -332,10 +344,8 @@ class _PaymentPageState extends State<PaymentPage> {
       if (!mounted) return;
       setState(() => _intent = intent);
       _revealPaymentStatus();
-      if (!intent.isTerminal) {
-        await Future<void>.delayed(const Duration(milliseconds: 700));
-        await _refreshStatus();
-      }
+      _pollAttempts = 0;
+      _schedulePoll();
     } catch (error) {
       if (!mounted) return;
       setState(() => _paymentError = _message(error));
@@ -360,8 +370,27 @@ class _PaymentPageState extends State<PaymentPage> {
       if (!mounted) return;
       setState(() => _paymentError = _message(error));
     } finally {
-      if (mounted) setState(() => _checkingStatus = false);
+      if (mounted) {
+        setState(() => _checkingStatus = false);
+        _schedulePoll();
+      }
     }
+  }
+
+  /// Checks the payment status periodically while the member approves the
+  /// mobile-money prompt, so they don't have to keep tapping "Check status".
+  void _schedulePoll() {
+    _pollTimer?.cancel();
+    final intent = _intent;
+    if (intent == null ||
+        intent.isTerminal ||
+        _pollAttempts >= _maxPollAttempts) {
+      return;
+    }
+    _pollTimer = Timer(_pollInterval, () {
+      _pollAttempts++;
+      _refreshStatus();
+    });
   }
 
   String _message(Object error) {
@@ -382,6 +411,7 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   void _startNewPayment() {
+    _pollTimer?.cancel();
     setState(() {
       _intent = null;
       _paymentError = null;

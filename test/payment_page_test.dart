@@ -89,7 +89,19 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('continue-payment')));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 700));
+    expect(gateway.statusCalls, 0);
+    expect(
+      tester
+          .widget<TextField>(
+            find.descendant(
+              of: find.byKey(const ValueKey('payment-amount')),
+              matching: find.byType(TextField),
+            ),
+          )
+          .enabled,
+      isFalse,
+    );
+    await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
 
     expect(gateway.createCalls, 1);

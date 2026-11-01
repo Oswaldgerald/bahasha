@@ -57,7 +57,53 @@ class FakeMemberDataGateway implements MemberDataGateway {
           isClosed: false,
         ),
       ),
-      categories: const [],
+      categories: const [
+        ContributionCategory(
+          id: 'category-ahadi',
+          key: 'ahadi',
+          name: 'Promise',
+          swahiliName: 'Ahadi',
+          description: 'Weekly promise offering',
+          iconKey: 'hand-heart',
+          colorHex: '#A844B7',
+          frequency: 'weekly',
+          paymentsEnabled: false,
+          allowsCatchUp: true,
+          missingWeeksCount: 3,
+          totalContributed: Money(amount: 125000, currency: 'TZS'),
+          suggestedAmount: null,
+        ),
+        ContributionCategory(
+          id: 'category-shukrani',
+          key: 'shukrani',
+          name: 'Thanksgiving',
+          swahiliName: 'Shukrani',
+          description: 'Annual thanksgiving offering',
+          iconKey: 'heart-handshake',
+          colorHex: '#2E9F75',
+          frequency: 'annual',
+          paymentsEnabled: false,
+          allowsCatchUp: false,
+          missingWeeksCount: 0,
+          totalContributed: Money(amount: 40000, currency: 'TZS'),
+          suggestedAmount: null,
+        ),
+        ContributionCategory(
+          id: 'category-jengo',
+          key: 'jengo',
+          name: 'Building fund',
+          swahiliName: 'Jengo',
+          description: 'Church building fund',
+          iconKey: 'building-2',
+          colorHex: '#3465A4',
+          frequency: 'seasonal',
+          paymentsEnabled: false,
+          allowsCatchUp: false,
+          missingWeeksCount: 0,
+          totalContributed: Money(amount: 0, currency: 'TZS'),
+          suggestedAmount: null,
+        ),
+      ],
       unreadNotificationsCount: 0,
       capabilities: const MobileCapabilities(paymentsEnabled: false),
     );
@@ -100,5 +146,31 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome, Amina Mushi'), findsOneWidget);
+  });
+
+  testWidgets('dashboard cards fit a narrow screen with large text', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 2400);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.6;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    final controller = AuthController(FakeAuthGateway());
+    await tester.pumpWidget(
+      BahashaApp(
+        authController: controller,
+        memberDataGateway: FakeMemberDataGateway(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).at(0), 'amina');
+    await tester.enterText(find.byType(TextFormField).at(1), 'secret-password');
+    await tester.tap(find.text('Sign in'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Choose a contribution'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

@@ -46,6 +46,15 @@ class _LandingPageState extends State<LandingPage> {
     } catch (error) {
       if (!mounted) return;
       setState(() => _error = error);
+      if (_bootstrap != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Could not refresh. Showing saved data · Imeshindikana kusasisha.',
+            ),
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -149,37 +158,44 @@ class _LandingPageState extends State<LandingPage> {
           if (data.categories.isEmpty)
             const _EmptyCategories()
           else
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: data.categories.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.9,
-              ),
-              itemBuilder: (context, index) {
-                final category = data.categories[index];
-                return _CategoryCard(
-                  category: category,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => CategoryDetailPage(
-                        category: category,
-                        financialYearId: data.activePeriod.financialYearId,
-                        memberData: widget.memberData,
-                        paymentGateway: widget.paymentGateway,
-                        paymentsAvailable:
-                            data.capabilities.paymentsEnabled &&
-                            category.paymentsEnabled,
-                      ),
+            // Rows size to their tallest card so content never overflows at
+            // narrow widths or large text scales.
+            for (var i = 0; i < data.categories.length; i += 2) ...[
+              if (i > 0) const SizedBox(height: 12),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: _categoryCard(data, data.categories[i])),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: i + 1 < data.categories.length
+                          ? _categoryCard(data, data.categories[i + 1])
+                          : const SizedBox.shrink(),
                     ),
-                  ),
-                );
-              },
-            ),
+                  ],
+                ),
+              ),
+            ],
         ],
+      ),
+    );
+  }
+
+  Widget _categoryCard(MemberBootstrap data, ContributionCategory category) {
+    return _CategoryCard(
+      category: category,
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => CategoryDetailPage(
+            category: category,
+            financialYearId: data.activePeriod.financialYearId,
+            memberData: widget.memberData,
+            paymentGateway: widget.paymentGateway,
+            paymentsAvailable:
+                data.capabilities.paymentsEnabled && category.paymentsEnabled,
+          ),
+        ),
       ),
     );
   }
@@ -325,6 +341,7 @@ class _CategoryCard extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
               ),
+              const SizedBox(height: 12),
               const Spacer(),
               Text(
                 formatMoney(category.totalContributed),

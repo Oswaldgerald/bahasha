@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
             fit: BoxFit.cover,
             alignment: Alignment.centerLeft,
           ),
-          ColoredBox(color: Colors.white.withValues(alpha: 0.64)),
+          ColoredBox(color: Colors.white.withValues(alpha: 0.5)),
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -88,120 +88,131 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         child: Form(
                           key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Icon(
-                                Icons.church_rounded,
-                                size: 68,
-                                color: AppColors.primary,
-                              ),
-                              const SizedBox(height: 18),
-                              const Text(
-                                'Bahasha',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 34,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.primaryDark,
+                          child: AutofillGroup(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Icon(
+                                  Icons.church_rounded,
+                                  size: 68,
+                                  color: AppColors.primary,
                                 ),
-                              ),
-                              const SizedBox(height: 6),
-                              const Text(
-                                'Church Contribution Management',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 15,
-                                ),
-                              ),
-                              const SizedBox(height: 30),
-                              TextFormField(
-                                controller: _identifierController,
-                                textInputAction: TextInputAction.next,
-                                autocorrect: false,
-                                decoration: const InputDecoration(
-                                  labelText: 'Username or phone number',
-                                  prefixIcon: Icon(
-                                    Icons.person_outline_rounded,
+                                const SizedBox(height: 18),
+                                const Text(
+                                  'Bahasha',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 34,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.primaryDark,
                                   ),
                                 ),
-                                validator: (value) =>
-                                    value == null || value.trim().isEmpty
-                                    ? 'Enter your username or phone number.'
-                                    : null,
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _passwordController,
-                                obscureText: _obscurePassword,
-                                textInputAction: TextInputAction.done,
-                                onFieldSubmitted: (_) {
-                                  if (!isLoading) _handleLogin();
-                                },
-                                decoration: InputDecoration(
-                                  labelText: 'Password',
-                                  prefixIcon: const Icon(
-                                    Icons.lock_outline_rounded,
-                                  ),
-                                  suffixIcon: IconButton(
-                                    tooltip: _obscurePassword
-                                        ? 'Show password'
-                                        : 'Hide password',
-                                    onPressed: () => setState(
-                                      () =>
-                                          _obscurePassword = !_obscurePassword,
-                                    ),
-                                    icon: Icon(
-                                      _obscurePassword
-                                          ? Icons.visibility_outlined
-                                          : Icons.visibility_off_outlined,
-                                    ),
+                                const SizedBox(height: 6),
+                                const Text(
+                                  'Church contributions · Sadaka za kanisa',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 15,
                                   ),
                                 ),
-                                validator: (value) =>
-                                    value == null || value.isEmpty
-                                    ? 'Enter your password.'
-                                    : null,
-                              ),
-                              if (widget.authController.errorMessage !=
-                                  null) ...[
-                                const SizedBox(height: 14),
-                                Semantics(
-                                  liveRegion: true,
-                                  child: Text(
-                                    widget.authController.errorMessage!,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: AppColors.error,
+                                const SizedBox(height: 30),
+                                TextFormField(
+                                  controller: _identifierController,
+                                  textInputAction: TextInputAction.next,
+                                  autocorrect: false,
+                                  autofillHints: const [
+                                    AutofillHints.username,
+                                    AutofillHints.telephoneNumber,
+                                  ],
+                                  decoration: const InputDecoration(
+                                    labelText: 'Username or phone number',
+                                    prefixIcon: Icon(
+                                      Icons.person_outline_rounded,
                                     ),
+                                  ),
+                                  validator: (value) =>
+                                      value == null || value.trim().isEmpty
+                                      ? 'Enter your username or phone · Weka jina au simu'
+                                      : null,
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: _obscurePassword,
+                                  textInputAction: TextInputAction.done,
+                                  autofillHints: const [AutofillHints.password],
+                                  onFieldSubmitted: (_) {
+                                    if (!isLoading) _handleLogin();
+                                  },
+                                  decoration: InputDecoration(
+                                    labelText: 'Password · Nenosiri',
+                                    prefixIcon: const Icon(
+                                      Icons.lock_outline_rounded,
+                                    ),
+                                    suffixIcon: IconButton(
+                                      tooltip: _obscurePassword
+                                          ? 'Show password'
+                                          : 'Hide password',
+                                      onPressed: () => setState(
+                                        () => _obscurePassword =
+                                            !_obscurePassword,
+                                      ),
+                                      icon: Icon(
+                                        _obscurePassword
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined,
+                                      ),
+                                    ),
+                                  ),
+                                  validator: (value) =>
+                                      value == null || value.isEmpty
+                                      ? 'Enter your password · Weka nenosiri'
+                                      : null,
+                                ),
+                                if (widget.authController.errorMessage !=
+                                    null) ...[
+                                  const SizedBox(height: 14),
+                                  Semantics(
+                                    liveRegion: true,
+                                    child: Text(
+                                      widget.authController.errorMessage!,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: AppColors.error,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: 22),
+                                FilledButton.icon(
+                                  onPressed: isLoading ? null : _handleLogin,
+                                  icon: isLoading
+                                      ? const SizedBox.square(
+                                          dimension: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Icon(Icons.login_rounded),
+                                  label: Text(
+                                    isLoading
+                                        ? 'Signing in · Inaingia...'
+                                        : 'Sign in · Ingia',
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                TextButton(
+                                  onPressed: isLoading
+                                      ? null
+                                      : _showForgotPassword,
+                                  child: const Text(
+                                    'Forgot password? · Umesahau nenosiri?',
                                   ),
                                 ),
                               ],
-                              const SizedBox(height: 22),
-                              ElevatedButton.icon(
-                                onPressed: isLoading ? null : _handleLogin,
-                                icon: isLoading
-                                    ? const SizedBox.square(
-                                        dimension: 18,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Icon(Icons.login_rounded),
-                                label: Text(
-                                  isLoading ? 'Signing in...' : 'Sign in',
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              TextButton(
-                                onPressed: isLoading
-                                    ? null
-                                    : _showForgotPassword,
-                                child: const Text('Forgot password?'),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),

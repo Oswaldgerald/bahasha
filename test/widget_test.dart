@@ -138,11 +138,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Username or phone number'), findsOneWidget);
-    expect(find.text('Forgot password?'), findsOneWidget);
+    expect(find.text('Forgot password? · Umesahau nenosiri?'), findsOneWidget);
 
     await tester.enterText(find.byType(TextFormField).at(0), 'amina');
     await tester.enterText(find.byType(TextFormField).at(1), 'secret-password');
-    await tester.tap(find.text('Sign in'));
+    await tester.tap(find.text('Sign in · Ingia'));
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome, Amina Mushi'), findsOneWidget);
@@ -167,7 +167,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'amina');
     await tester.enterText(find.byType(TextFormField).at(1), 'secret-password');
-    await tester.tap(find.text('Sign in'));
+    await tester.tap(find.text('Sign in · Ingia'));
     await tester.pumpAndSettle();
 
     expect(find.text('Choose a contribution'), findsOneWidget);

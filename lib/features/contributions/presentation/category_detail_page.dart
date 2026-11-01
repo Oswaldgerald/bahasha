@@ -290,10 +290,10 @@ class _CategorySummary extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   formatMoney(category.totalContributed),
-                  style: TextStyle(
-                    color: color,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
                     fontSize: 20,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -377,9 +377,32 @@ class _WeekList extends StatelessWidget {
               'Week ${week.number}',
               style: const TextStyle(fontWeight: FontWeight.w800),
             ),
-            subtitle: Text(
-              '${formatDate(week.sundayDate)}\n${weekStateLabel(week.state)}',
-              style: TextStyle(color: stateColor),
+            subtitle: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: formatDate(week.sundayDate),
+                    style: const TextStyle(color: AppColors.textSecondary),
+                  ),
+                  TextSpan(
+                    text: '\n${weekStateLabel(week.state)}',
+                    style: TextStyle(
+                      color: stateColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  // Explain why a week that still needs paying can't be
+                  // opened, instead of a tile that silently ignores taps.
+                  if (!week.paymentEligible && week.state != 'paid')
+                    const TextSpan(
+                      text: '\nNot open for payment · Haijafunguliwa',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                ],
+              ),
             ),
             isThreeLine: true,
             trailing: Row(
@@ -392,7 +415,7 @@ class _WeekList extends StatelessWidget {
                     if (week.contributed.amount > 0)
                       Text(
                         formatMoney(week.contributed),
-                        style: const TextStyle(fontWeight: FontWeight.w900),
+                        style: const TextStyle(fontWeight: FontWeight.w800),
                       )
                     else
                       Icon(
@@ -405,8 +428,9 @@ class _WeekList extends StatelessWidget {
                       const Text(
                         'Contribute · Lipa',
                         style: TextStyle(
-                          fontSize: 10,
-                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
                         ),
                       ),
                   ],
@@ -476,7 +500,7 @@ class _HistoryList extends StatelessWidget {
             ),
             title: Text(
               formatMoney(contribution.amount),
-              style: const TextStyle(fontWeight: FontWeight.w900),
+              style: const TextStyle(fontWeight: FontWeight.w800),
             ),
             subtitle: Text(
               'Week ${contribution.weekNumber} · ${formatDate(contribution.contributionDate)}\n${contribution.reference}',

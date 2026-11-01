@@ -79,19 +79,10 @@ class _LandingPageState extends State<LandingPage> {
           ],
         ),
         actions: [
-          if ((_bootstrap?.unreadNotificationsCount ?? 0) > 0)
-            Badge(
-              label: Text('${_bootstrap!.unreadNotificationsCount}'),
-              child: IconButton(
-                tooltip: 'Notifications',
-                onPressed: () {},
-                icon: const Icon(Icons.notifications_none_rounded),
-              ),
-            ),
           PopupMenuButton<String>(
             tooltip: 'Account menu',
             onSelected: (value) {
-              if (value == 'logout') widget.onLogout();
+              if (value == 'logout') _confirmLogout();
             },
             itemBuilder: (_) => const [
               PopupMenuItem(
@@ -114,7 +105,7 @@ class _LandingPageState extends State<LandingPage> {
                   _initials(_bootstrap?.member.fullName),
                   style: const TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -198,6 +189,30 @@ class _LandingPageState extends State<LandingPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign out? · Ondoka?'),
+        content: const Text(
+          'You will need your password to sign in again.\n'
+          'Utahitaji nenosiri kuingia tena.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel · Ghairi'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Sign out · Ondoka'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) await widget.onLogout();
   }
 
   String _initials(String? name) {
@@ -345,10 +360,10 @@ class _CategoryCard extends StatelessWidget {
               const Spacer(),
               Text(
                 formatMoney(category.totalContributed),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: color,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 6),
@@ -357,8 +372,8 @@ class _CategoryCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color:
                       (category.missingWeeksCount == 0
-                              ? const Color(0xFF217A52)
-                              : const Color(0xFFB54708))
+                              ? AppColors.success
+                              : AppColors.warning)
                           .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
@@ -366,14 +381,12 @@ class _CategoryCard extends StatelessWidget {
                   category.missingWeeksCount == 0
                       ? 'Up to date · Imekamilika'
                       : '${category.missingWeeksCount} missing · Hazijalipwa',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: category.missingWeeksCount == 0
-                        ? const Color(0xFF217A52)
-                        : const Color(0xFFB54708),
+                        ? AppColors.success
+                        : AppColors.warning,
                   ),
                 ),
               ),

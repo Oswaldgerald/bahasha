@@ -36,7 +36,7 @@ class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFFE4E8EB)),
+          side: const BorderSide(color: AppColors.border),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -53,7 +53,7 @@ class AppTheme {
         unselectedLabelColor: AppColors.textSecondary,
         indicatorColor: AppColors.primary,
         indicatorSize: TabBarIndicatorSize.tab,
-        dividerColor: Color(0xFFE4E8EB),
+        dividerColor: AppColors.border,
         labelStyle: TextStyle(fontWeight: FontWeight.w800),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -62,22 +62,11 @@ class AppTheme {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFD8DEE3)),
+          borderSide: const BorderSide(color: AppColors.inputBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          minimumSize: const Size(48, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ),
     );

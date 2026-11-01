@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/constants/app_colors.dart';
 import '../domain/member_data.dart';
 
 final _amountFormat = NumberFormat.decimalPattern('en');
@@ -27,7 +28,7 @@ String frequencyLabel(String frequency) {
 
 Color categoryColor(String hex) {
   final value = int.tryParse(hex.replaceFirst('#', ''), radix: 16);
-  return value == null ? const Color(0xFF0A4A4C) : Color(0xFF000000 | value);
+  return value == null ? AppColors.primary : Color(0xFF000000 | value);
 }
 
 IconData categoryIcon(String key) {
@@ -64,10 +65,10 @@ String contributionStatusLabel(String status) {
 
 Color contributionStatusColor(String status) {
   return switch (status.toUpperCase()) {
-    'POSTED' => const Color(0xFF217A52),
-    'PENDING' => const Color(0xFFB54708),
-    'REVERSED' => const Color(0xFFB3261E),
-    _ => const Color(0xFF687078),
+    'POSTED' => AppColors.success,
+    'PENDING' => AppColors.warning,
+    'REVERSED' => AppColors.error,
+    _ => AppColors.textSecondary,
   };
 }
 
@@ -82,9 +83,9 @@ IconData contributionStatusIcon(String status) {
 
 Color weekStateColor(String state) {
   return switch (state) {
-    'paid' => const Color(0xFF217A52),
-    'missing' => const Color(0xFFB54708),
-    'upcoming' => const Color(0xFF3465A4),
-    _ => const Color(0xFF687078),
+    'paid' => AppColors.success,
+    'missing' => AppColors.warning,
+    'upcoming' => AppColors.info,
+    _ => AppColors.textSecondary,
   };
 }

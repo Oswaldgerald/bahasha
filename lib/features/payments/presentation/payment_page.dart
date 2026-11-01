@@ -188,10 +188,12 @@ class _PaymentPageState extends State<PaymentPage> {
                           RegExp(r'^\d*\.?\d{0,2}'),
                         ),
                       ],
-                      decoration: const InputDecoration(
-                        hintText: 'Enter contribution amount',
-                        suffixText: 'TZS',
-                        prefixIcon: Icon(Icons.payments_outlined),
+                      decoration: InputDecoration(
+                        hintText: 'Enter amount · Weka kiasi',
+                        suffixText:
+                            widget.category.suggestedAmount?.currency ??
+                            widget.category.totalContributed.currency,
+                        prefixIcon: const Icon(Icons.payments_outlined),
                       ),
                       validator: (value) {
                         final amount = double.tryParse(value ?? '');
@@ -215,15 +217,15 @@ class _PaymentPageState extends State<PaymentPage> {
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: const InputDecoration(
                         hintText: '700 000 000',
-                        prefixText: '+255  ',
+                        prefixText: '+255 ',
                         prefixIcon: Icon(Icons.phone_android_rounded),
                         helperText:
-                            'Enter the number without the leading zero.',
+                            'Without the leading zero · Bila sifuri ya mwanzo',
                       ),
                       validator: (value) {
                         final digits = value?.trim() ?? '';
                         if (!RegExp(r'^[67]\d{8}$').hasMatch(digits)) {
-                          return 'Enter a valid Tanzania number';
+                          return 'Enter a valid Tanzania number · Weka namba sahihi';
                         }
                         return null;
                       },
@@ -265,8 +267,8 @@ class _PaymentPageState extends State<PaymentPage> {
                       Text(
                         error,
                         style: const TextStyle(
-                          color: Colors.redAccent,
-                          fontSize: 12,
+                          color: AppColors.error,
+                          fontSize: 13,
                         ),
                       ),
                     ],
@@ -298,12 +300,13 @@ class _PaymentPageState extends State<PaymentPage> {
                       ? 'Sending payment request...'
                       : widget.paymentsAvailable
                       ? 'Continue · Endelea'
-                      : 'Payments unavailable · Malipo hayajafunguliwa',
+                      : 'Not available yet · Bado',
                 ),
               ),
               const SizedBox(height: 10),
               const Text(
-                'No contribution is recorded until the payment provider confirms the transaction.',
+                'No contribution is recorded until the payment provider confirms the transaction.\n'
+                'Sadaka hairekodiwi hadi mtoa huduma athibitishe malipo.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
               ),
@@ -464,7 +467,7 @@ class _PaymentHeader extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -489,19 +492,19 @@ class _UnavailableNotice extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF3E8),
+        color: AppColors.warningSurface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFF4C99F)),
+        border: Border.all(color: AppColors.warningBorder),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline_rounded, color: Color(0xFF9A4D0B)),
+          Icon(Icons.info_outline_rounded, color: AppColors.warningIcon),
           SizedBox(width: 10),
           Expanded(
             child: Text(
               'Online payments are not enabled yet. You can review the selected week while provider setup is completed.\nMalipo ya mtandao bado hayajafunguliwa.',
-              style: TextStyle(color: Color(0xFF713B0D), height: 1.35),
+              style: TextStyle(color: AppColors.warningText, height: 1.35),
             ),
           ),
         ],
@@ -531,7 +534,7 @@ class _Section extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
             ),
             Text(
               swahiliTitle,
@@ -612,9 +615,9 @@ class _PaymentStatusCard extends StatelessWidget {
       'cancelled',
     }.contains(intent.status);
     final color = succeeded
-        ? const Color(0xFF217A52)
+        ? AppColors.success
         : failed
-        ? const Color(0xFFB33A2B)
+        ? AppColors.error
         : AppColors.primary;
     final icon = succeeded
         ? Icons.check_circle_rounded
@@ -651,7 +654,7 @@ class _PaymentStatusCard extends StatelessWidget {
                       title,
                       style: TextStyle(
                         color: color,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 3),
